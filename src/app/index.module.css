@@ -1,0 +1,25 @@
+.noScrollBar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  overflow: auto;
+}
+
+.noScrollBar::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes breathing {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.8);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.logo {
+  animation: breathing 3s infinite ease-in-out;
+}
