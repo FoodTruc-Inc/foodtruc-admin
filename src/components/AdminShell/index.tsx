@@ -1,13 +1,5 @@
 'use client';
-import {
-  Anchor,
-  AppShell,
-  Box,
-  Flex,
-  Text,
-  Tooltip,
-  useMantineTheme,
-} from '@mantine/core';
+import { Anchor, AppShell, Flex, Text, useMantineTheme } from '@mantine/core';
 import Logo1 from '@/assets/icons/logo-white.svg';
 import Logo2 from '@/assets/icons/logo11.svg';
 import Home from '@/assets/icons/dash.svg';
