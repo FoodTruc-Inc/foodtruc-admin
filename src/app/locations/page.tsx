@@ -1,19 +1,24 @@
 'use client';
 import { useLocations } from '@/hooks/data/locations';
 import {
+  Box,
   Button,
   Checkbox,
   Drawer,
   Flex,
   Image,
+  MultiSelect,
   NumberInput,
+  rem,
   SimpleGrid,
+  Switch,
   Table,
   Text,
   Textarea,
   TextInput,
+  useMantineTheme,
 } from '@mantine/core';
-import { useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { AddressAutofill } from '@mapbox/search-js-react';
 import { useForm, zodResolver } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
@@ -21,6 +26,9 @@ import { useMutation } from '@tanstack/react-query';
 import { createLocation } from '@/api/locations';
 import { z } from 'zod';
 import { Dropzone, FileWithPath, IMAGE_MIME_TYPE } from '@mantine/dropzone';
+import { TimeInput, TimeInputProps } from '@mantine/dates';
+import { IconClock, IconCheck, IconX } from '@tabler/icons-react';
+import dayjs from 'dayjs';
 
 const schema = z.object({
   name: z
@@ -48,12 +56,14 @@ const schema = z.object({
     .min(3, {
       message: 'Description must be at least 3 characters long',
     }),
+  timeSlots: z.array(z.string()),
 });
 export default function Page() {
-  const { data, isLoading } = useLocations();
+  const { data, isLoading, refetch } = useLocations();
   const [addressData, setAddressData] = useState('');
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [files, setFiles] = useState<FileWithPath[]>([]);
+  const theme = useMantineTheme();
 
   const previews = files.map((file, index) => {
     const imageUrl = URL.createObjectURL(file);
@@ -73,6 +83,9 @@ export default function Page() {
       description: '',
       lng: '',
       lat: '',
+      timeSlots: ['ALL_DAY'],
+      slotTimes: {},
+      canBeUsedForEvent: false,
     },
     validate: zodResolver(schema),
     validateInputOnBlur: true,
@@ -82,12 +95,15 @@ export default function Page() {
   const mutation = useMutation({
     mutationFn: createLocation,
     onSuccess: (data) => {
-      console.log(data);
       notifications.show({
         title: 'Location created successfully',
         message: 'Location created successfully',
         color: 'green',
       });
+
+      refetch();
+      setIsDrawerOpen(false);
+      form.reset();
     },
     onError: (error: any) => {
       const message = error?.response?.data?.message || error.message;
@@ -98,6 +114,10 @@ export default function Page() {
       });
     },
   });
+
+  const maxSelectValues = useMemo(() => {
+    return form.getValues().timeSlots?.includes('ALL_DAY') ? 1 : 3;
+  }, [form.getValues().timeSlots]);
 
   const onRetrieveAddress = (result: any) => {
     console.log(result);
@@ -120,7 +140,6 @@ export default function Page() {
       return;
     }
 
-    console.log(values);
     const formData = new FormData();
     formData.append('name', values.name);
     formData.append('address', values.address);
@@ -129,13 +148,55 @@ export default function Page() {
     formData.append('lng', values.lng);
     formData.append('lat', values.lat);
     formData.append('data', addressData);
-    console.log(files);
+    formData.append('canBeUsedForEvent', values.canBeUsedForEvent);
+    if (values.canBeUsedForEvent) {
+      formData.append('timeSlots', JSON.stringify(values.timeSlots));
+      formData.append('slotTime', JSON.stringify(values.slotTimes));
+    }
 
     files.forEach((file) => {
       formData.append('images', file);
     });
 
     mutation.mutate(formData);
+  };
+
+  const handleTimeSlotsChange = (value: any) => {
+    const slotTimes: any = form.getValues().slotTimes;
+    if (value.includes('ALL_DAY')) {
+      form.setFieldValue('timeSlots', ['ALL_DAY']);
+      form.setFieldValue('slotTimes', {
+        ['ALL_DAY']: slotTimes['ALL_DAY'] || {},
+      });
+    } else {
+      const newSlotTimes: any = {};
+      value.forEach((timeSlot: string) => {
+        newSlotTimes[timeSlot] = slotTimes[timeSlot] || {};
+      });
+      form.setFieldValue('timeSlots', value);
+      form.setFieldValue('slotTimes', newSlotTimes);
+    }
+  };
+
+  const handleTimeSelect = (time: any, type: string) => (e: any) => {
+    const value = e.target.value;
+    const exists = form.getValues().slotTimes?.[time];
+    if (exists) {
+      const startTime = type === 'startTime' ? value : exists.startTime;
+      const endTime = type === 'endTime' ? value : exists.endTime;
+
+      if (isGreaterThan(startTime, endTime)) {
+        return notifications.show({
+          title: 'Error',
+          message: 'Start time must be less than end time',
+          color: 'red',
+        });
+      }
+
+      form.setFieldValue(`slotTimes.${time}.${type}`, value);
+    } else {
+      form.setFieldValue(`slotTimes.${time}`, { [type]: value });
+    }
   };
 
   return (
@@ -226,6 +287,30 @@ export default function Page() {
           key='name'
           {...form.getInputProps('name')}
         />
+        <Switch
+          required
+          label='This location is for events'
+          my={20}
+          {...form.getInputProps('canBeUsedForEvent')}
+          color='teal'
+          size='md'
+          thumbIcon={
+            form.getValues().canBeUsedForEvent ? (
+              <IconCheck
+                style={{ width: rem(12), height: rem(12) }}
+                color={theme.colors.teal[6]}
+                stroke={3}
+              />
+            ) : (
+              <IconX
+                style={{ width: rem(12), height: rem(12) }}
+                color={theme.colors.red[6]}
+                stroke={3}
+              />
+            )
+          }
+        />
+
         <AddressAutofill
           accessToken='pk.eyJ1Ijoiam9qaXRvb24iLCJhIjoiY2xob25yZzdhMGtrMjNlcGVuaTNxNnp0dSJ9.Mp_4_OEGVS7A_bdfuBDtdA'
           onRetrieve={onRetrieveAddress}>
@@ -244,9 +329,14 @@ export default function Page() {
             </Text>
           </Flex>
         ) : null}
+
         <NumberInput
           required
-          label='Price per hour (USD)'
+          label={
+            form.getValues().canBeUsedForEvent
+              ? 'Price per hour (USD)'
+              : 'Price per month (USD)'
+          }
           key='price'
           my={10}
           {...form.getInputProps('price')}
@@ -257,9 +347,63 @@ export default function Page() {
           required
           label='Description'
           my={10}
+          mb={20}
           {...form.getInputProps('description')}
         />
 
+        {form.getValues().canBeUsedForEvent && (
+          <>
+            <MultiSelect
+              label='Time Slots'
+              required
+              placeholder='Select time slots'
+              my={10}
+              data={[
+                { value: 'ALL_DAY', label: 'All day' },
+                { value: 'MORNING', label: 'Morning' },
+                { value: 'AFTERNOON', label: 'Afternoon' },
+                { value: 'EVENING', label: 'Evening' },
+              ]}
+              maxValues={maxSelectValues}
+              value={form.getValues().timeSlots}
+              onChange={handleTimeSlotsChange}
+            />
+
+            <Box mt={20} mb={30}>
+              <Text fz={16} fw='bold'>
+                Time Slots Allocations
+              </Text>
+              {form
+                .getValues()
+                .timeSlots?.map((timeSlot: string, index: number) => (
+                  <Box key={index} my={20}>
+                    <Text fz={14} fw='bold'>
+                      {timeSlot?.replace('_', ' ')}
+                    </Text>
+                    <Flex align='flex-end' gap={20}>
+                      <TimePick
+                        required
+                        flex={1}
+                        label='Start'
+                        value={
+                          form.getValues().slotTimes?.[timeSlot]?.startTime
+                        }
+                        onChange={handleTimeSelect(timeSlot, 'startTime')}
+                      />
+                      <TimePick
+                        flex={1}
+                        required
+                        label='End'
+                        value={form.getValues().slotTimes?.[timeSlot]?.endTime}
+                        onChange={handleTimeSelect(timeSlot, 'endTime')}
+                        // {...form.getInputProps(`slotTimes.${timeSlot}.endTime`)}
+                      />
+                    </Flex>
+                  </Box>
+                ))}
+            </Box>
+          </>
+        )}
         <Dropzone accept={IMAGE_MIME_TYPE} multiple onDrop={setFiles}>
           <Text ta='center'>Drop or select images here</Text>
         </Dropzone>
@@ -280,4 +424,28 @@ export default function Page() {
       </Drawer>
     </Flex>
   );
+}
+
+function TimePick(props: TimeInputProps) {
+  const ref = useRef<HTMLInputElement>(null);
+
+  return (
+    <Box onClick={() => ref.current?.showPicker()}>
+      <TimeInput
+        leftSection={
+          <IconClock style={{ width: rem(16), height: rem(16) }} stroke={1.5} />
+        }
+        ref={ref}
+        {...props}
+      />
+    </Box>
+  );
+}
+
+function isGreaterThan(startTime: string, endTime: string) {
+  const ft = dayjs(`2000-01-01 ${startTime}`);
+  const tt = dayjs(`2000-01-01 ${endTime}`);
+  const mins = tt.diff(ft, 'minutes', true);
+
+  return mins <= 0;
 }
