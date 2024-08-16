@@ -1,3 +1,4 @@
+'use client';
 import { Avatar, Flex, Menu, Text } from '@mantine/core';
 import NotificationIcon from '@/assets/icons/notifications.svg';
 import RedDot from '@/assets/icons/dot-red.svg';

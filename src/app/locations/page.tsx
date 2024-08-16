@@ -19,7 +19,7 @@ import {
   useMantineTheme,
 } from '@mantine/core';
 import { useMemo, useRef, useState } from 'react';
-import { AddressAutofill } from '@mapbox/search-js-react';
+// import { AddressAutofill } from '@mapbox/search-js-react';
 import { useForm, zodResolver } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { useMutation } from '@tanstack/react-query';
@@ -29,36 +29,73 @@ import { Dropzone, FileWithPath, IMAGE_MIME_TYPE } from '@mantine/dropzone';
 import { TimeInput, TimeInputProps } from '@mantine/dates';
 import { IconClock, IconCheck, IconX } from '@tabler/icons-react';
 import dayjs from 'dayjs';
+import dynamic from 'next/dynamic';
 
-const schema = z.object({
-  name: z
-    .string({
-      required_error: 'Name is required',
-    })
-    .min(3, { message: 'Name must be at least 3 characters long' }),
-  address: z
-    .string({
-      required_error: 'Address is required',
-    })
-    .min(3, { message: 'Address must be at least 3 characters long' }),
-  price: z
-    .number({
-      required_error: 'Price is required',
-      message: 'Price is required',
-    })
-    .min(1, {
-      message: 'Price is required',
-    }),
-  description: z
-    .string({
-      required_error: 'Description is required',
-    })
-    .min(3, {
-      message: 'Description must be at least 3 characters long',
-    }),
-  timeSlots: z.array(z.string()),
-});
+const AddressAutofill = dynamic(
+  // @ts-ignore
+  () => import('@mapbox/search-js-react').then((mod) => mod.AddressAutofill),
+  {
+    ssr: false,
+  }
+);
+
 export default function Page() {
+  const schema = z.object({
+    name: z
+      .string({
+        required_error: 'Name is required',
+      })
+      .min(3, { message: 'Name must be at least 3 characters long' }),
+    address: z
+      .string({
+        required_error: 'Address is required',
+      })
+      .min(3, { message: 'Address must be at least 3 characters long' }),
+    price: z
+      .number({
+        required_error: 'Price is required',
+        message: 'Price is required',
+      })
+      .min(1, {
+        message: 'Price is required',
+      }),
+    description: z
+      .string({
+        required_error: 'Description is required',
+      })
+      .min(3, {
+        message: 'Description must be at least 3 characters long',
+      }),
+    timeSlots: z.array(z.string()),
+  });
+
+  function TimePick(props: TimeInputProps) {
+    const ref = useRef<HTMLInputElement>(null);
+
+    return (
+      <Box onClick={() => ref.current?.showPicker()}>
+        <TimeInput
+          leftSection={
+            <IconClock
+              style={{ width: rem(16), height: rem(16) }}
+              stroke={1.5}
+            />
+          }
+          ref={ref}
+          {...props}
+        />
+      </Box>
+    );
+  }
+
+  function isGreaterThan(startTime: string, endTime: string) {
+    const ft = dayjs(`2000-01-01 ${startTime}`);
+    const tt = dayjs(`2000-01-01 ${endTime}`);
+    const mins = tt.diff(ft, 'minutes', true);
+
+    return mins <= 0;
+  }
+
   const { data, isLoading, refetch } = useLocations();
   const [addressData, setAddressData] = useState('');
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -312,9 +349,6 @@ export default function Page() {
           }
         />
 
-        {
-          // @ts-ignore
-        }
         {process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN && (
           // @ts-ignore
           <AddressAutofill
@@ -435,28 +469,4 @@ export default function Page() {
       </Drawer>
     </Flex>
   );
-}
-
-function TimePick(props: TimeInputProps) {
-  const ref = useRef<HTMLInputElement>(null);
-
-  return (
-    <Box onClick={() => ref.current?.showPicker()}>
-      <TimeInput
-        leftSection={
-          <IconClock style={{ width: rem(16), height: rem(16) }} stroke={1.5} />
-        }
-        ref={ref}
-        {...props}
-      />
-    </Box>
-  );
-}
-
-function isGreaterThan(startTime: string, endTime: string) {
-  const ft = dayjs(`2000-01-01 ${startTime}`);
-  const tt = dayjs(`2000-01-01 ${endTime}`);
-  const mins = tt.diff(ft, 'minutes', true);
-
-  return mins <= 0;
 }

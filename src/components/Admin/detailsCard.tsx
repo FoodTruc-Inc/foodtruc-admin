@@ -1,3 +1,4 @@
+'use client';
 import { Flex, Text } from '@mantine/core';
 
 interface Props {
