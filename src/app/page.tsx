@@ -17,7 +17,7 @@ import Users from '@/assets/icons/customers.svg';
 import { BarChart, LineChart } from '@mantine/charts';
 import { useState } from 'react';
 import Ellipsis from '@/assets/icons/ellipse.svg';
-import { AdminNavbar, DetailsCard } from '@/components';
+import { DetailsCard } from '@/components';
 
 const data = [
   {

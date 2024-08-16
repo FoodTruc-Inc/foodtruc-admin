@@ -69,6 +69,7 @@ export default function Page() {
     const imageUrl = URL.createObjectURL(file);
     return (
       <Image
+        alt='location image'
         key={index}
         src={imageUrl}
         onLoad={() => URL.revokeObjectURL(imageUrl)}
@@ -117,7 +118,7 @@ export default function Page() {
 
   const maxSelectValues = useMemo(() => {
     return form.getValues().timeSlots?.includes('ALL_DAY') ? 1 : 3;
-  }, [form.getValues().timeSlots]);
+  }, [form]);
 
   const onRetrieveAddress = (result: any) => {
     console.log(result);
@@ -180,7 +181,7 @@ export default function Page() {
 
   const handleTimeSelect = (time: any, type: string) => (e: any) => {
     const value = e.target.value;
-    const exists = form.getValues().slotTimes?.[time];
+    const exists = (form.getValues().slotTimes as any)?.[time];
     if (exists) {
       const startTime = type === 'startTime' ? value : exists.startTime;
       const endTime = type === 'endTime' ? value : exists.endTime;
@@ -311,16 +312,22 @@ export default function Page() {
           }
         />
 
-        <AddressAutofill
-          accessToken='pk.eyJ1Ijoiam9qaXRvb24iLCJhIjoiY2xob25yZzdhMGtrMjNlcGVuaTNxNnp0dSJ9.Mp_4_OEGVS7A_bdfuBDtdA'
-          onRetrieve={onRetrieveAddress}>
-          <TextInput
-            required
-            label='Address'
-            my={10}
-            {...form.getInputProps('address')}
-          />
-        </AddressAutofill>
+        {
+          // @ts-ignore
+        }
+        {process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN && (
+          // @ts-ignore
+          <AddressAutofill
+            accessToken={process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}
+            onRetrieve={onRetrieveAddress}>
+            <TextInput
+              required
+              label='Address'
+              my={10}
+              {...form.getInputProps('address')}
+            />
+          </AddressAutofill>
+        )}
         {form.getValues().lng && form.getValues().lat ? (
           <Flex direction='column' my={10}>
             <Text fz={14} fw={400}>
@@ -386,7 +393,8 @@ export default function Page() {
                         flex={1}
                         label='Start'
                         value={
-                          form.getValues().slotTimes?.[timeSlot]?.startTime
+                          (form.getValues().slotTimes as any)?.[timeSlot]
+                            ?.startTime
                         }
                         onChange={handleTimeSelect(timeSlot, 'startTime')}
                       />
@@ -394,7 +402,10 @@ export default function Page() {
                         flex={1}
                         required
                         label='End'
-                        value={form.getValues().slotTimes?.[timeSlot]?.endTime}
+                        value={
+                          (form.getValues().slotTimes as any)?.[timeSlot]
+                            ?.startTimeendTime
+                        }
                         onChange={handleTimeSelect(timeSlot, 'endTime')}
                         // {...form.getInputProps(`slotTimes.${timeSlot}.endTime`)}
                       />

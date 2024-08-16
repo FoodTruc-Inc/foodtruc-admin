@@ -1,4 +1,4 @@
-import { processUrlVariables, QUERIES } from '@/utils';
+import { QUERIES } from '@/utils';
 import { apiClient } from './init';
 
 interface Signup {

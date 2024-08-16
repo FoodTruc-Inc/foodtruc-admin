@@ -1,17 +1,5 @@
 'use client';
-import { AdminNavbar } from '@/components/Admin';
-import {
-  Badge,
-  Checkbox,
-  Flex,
-  Menu,
-  Popover,
-  Select,
-  Table,
-  Text,
-} from '@mantine/core';
-import Ellipsis from '@/assets/icons/ellipse.svg';
-import { useUsers } from '@/hooks/data/users';
+import { Badge, Checkbox, Flex, Select, Table, Text } from '@mantine/core';
 import dayjs from 'dayjs';
 import { useOrders } from '@/hooks/data/useOrders';
 import { useState } from 'react';

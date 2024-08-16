@@ -15,9 +15,7 @@ import Logo2 from '@/assets/icons/logo11.svg';
 import { QUERIES, ROUTES } from '@/utils/constants';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { loginSchema } from '@/utils/schemas/auth';
-import { useEffect } from 'react';
 import { logIn } from '@/api/auth';
-import { useMe } from '@/hooks/data/useMe';
 
 type FormValues = {
   username: string;

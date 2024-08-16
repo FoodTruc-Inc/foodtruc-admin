@@ -1,5 +1,5 @@
 'use client';
-import { Badge, Checkbox, Flex, Select, Table, Text } from '@mantine/core';
+import { Checkbox, Flex, Select, Table, Text } from '@mantine/core';
 import dayjs from 'dayjs';
 import { useState } from 'react';
 import { useEvents } from '@/hooks/data/events';
