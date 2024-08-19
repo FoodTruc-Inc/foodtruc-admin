@@ -438,7 +438,7 @@ export default function Page() {
                         label='End'
                         value={
                           (form.getValues().slotTimes as any)?.[timeSlot]
-                            ?.startTimeendTime
+                            ?.endTime
                         }
                         onChange={handleTimeSelect(timeSlot, 'endTime')}
                         // {...form.getInputProps(`slotTimes.${timeSlot}.endTime`)}
