@@ -1,11 +1,14 @@
 'use client';
 import { Badge, Checkbox, Flex, Popover, Table, Text } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
 import Ellipsis from '@/assets/icons/ellipse.svg';
 import { useUsers } from '@/hooks/data/users';
 import dayjs from 'dayjs';
+import { UserDetails } from '@/components/Drawers';
 
 export default function Page() {
   const { data, isLoading } = useUsers();
+  const [opened, { open, close }] = useDisclosure(false);
 
   return (
     <Flex direction='column' flex={1}>
@@ -47,7 +50,14 @@ export default function Page() {
             </Table.Thead>
             <Table.Tbody>
               {(data as any)?.data?.map((user: any) => (
-                <Table.Tr key={user?.id} h='72px'>
+                <Table.Tr
+                  key={user?.id}
+                  h='72px'
+                  style={{
+                    cursor: 'pointer',
+                  }}
+                  onClick={() => open()}
+                >
                   <Table.Td>
                     <Checkbox aria-label='Select row' />
                   </Table.Td>
@@ -84,18 +94,21 @@ export default function Page() {
                       h={27}
                       py={2}
                       fz={8}
-                      fw={500}>
+                      fw={500}
+                    >
                       {user?.type}
                     </Badge>
                   </Table.Td>
                   <Table.Td>
                     <Popover withinPortal>
                       <Popover.Target>
-                        <Ellipsis
-                          style={{
-                            cursor: 'pointer',
-                          }}
-                        />
+                        <Flex>
+                          <Ellipsis
+                            style={{
+                              cursor: 'pointer',
+                            }}
+                          />
+                        </Flex>
                       </Popover.Target>
                       <Popover.Dropdown>test</Popover.Dropdown>
                     </Popover>
@@ -106,6 +119,7 @@ export default function Page() {
           </Table>
         )}
       </Flex>
+      <UserDetails opened={opened} close={close} />
     </Flex>
   );
 }

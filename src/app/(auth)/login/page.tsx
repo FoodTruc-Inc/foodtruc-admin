@@ -71,8 +71,8 @@ const AdminLogin = () => {
           style={{
             cursor: 'pointer',
           }}
-          mt='30px'
-          mb='40px'>
+          mb='40px'
+        >
           <Flex style={{ zIndex: 99 }}>
             <Logo1 />
           </Flex>
@@ -88,8 +88,9 @@ const AdminLogin = () => {
             base: '100%',
             md: '450px',
           }}
-          my={40}>
-          <Flex direction='column' mt='100px'>
+          my={40}
+        >
+          <Flex direction='column' mt='70px'>
             <Text fz='40px' fw={700} c='color.8'>
               Login
             </Text>
@@ -124,7 +125,8 @@ const AdminLogin = () => {
               fz='14px'
               mt='5px'
               c='color.1'
-              style={{ textAlign: 'right' }}>
+              style={{ textAlign: 'right' }}
+            >
               Forgot password?
             </Anchor>
           </Flex>
@@ -138,7 +140,8 @@ const AdminLogin = () => {
             radius='xl'
             fz='16px'
             loading={isPending}
-            onClick={() => onSubmit(handleSubmit)()}>
+            onClick={() => onSubmit(handleSubmit)()}
+          >
             Sign In
           </Button>
         </Flex>

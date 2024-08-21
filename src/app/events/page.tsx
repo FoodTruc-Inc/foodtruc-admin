@@ -3,13 +3,15 @@ import { Checkbox, Flex, Select, Table, Text } from '@mantine/core';
 import dayjs from 'dayjs';
 import { useState } from 'react';
 import { useEvents } from '@/hooks/data/events';
+import { useDisclosure } from '@mantine/hooks';
+import { EventDetails } from '@/components/Drawers';
 
 export default function Page() {
   const [status, setStatus] = useState<
     'all' | 'unassigned' | 'current' | 'past'
   >('all');
   const { data, isLoading } = useEvents({ status });
-
+  const [opened, { open, close }] = useDisclosure(false);
   return (
     <Flex direction='column' flex={1}>
       <Flex bg='color.3' mb='20px' direction='column' pt='20px' flex={1}>
@@ -61,7 +63,12 @@ export default function Page() {
             </Table.Thead>
             <Table.Tbody>
               {(data as any)?.data?.map((user: any) => (
-                <Table.Tr key={user?.id} h='72px'>
+                <Table.Tr
+                  key={user?.id}
+                  h='72px'
+                  onClick={() => open()}
+                  style={{ cursor: 'pointer' }}
+                >
                   <Table.Td>
                     <Checkbox aria-label='Select row' />
                   </Table.Td>
@@ -118,6 +125,7 @@ export default function Page() {
           </Table>
         )}
       </Flex>
+      <EventDetails opened={opened} close={close} />
     </Flex>
   );
 }
