@@ -30,6 +30,8 @@ import { TimeInput, TimeInputProps } from '@mantine/dates';
 import { IconClock, IconCheck, IconX } from '@tabler/icons-react';
 import dayjs from 'dayjs';
 import dynamic from 'next/dynamic';
+import { useDisclosure } from '@mantine/hooks';
+import { LocationDetails } from '@/components/Drawers';
 
 const AddressAutofill = dynamic(
   // @ts-ignore
@@ -40,6 +42,7 @@ const AddressAutofill = dynamic(
 );
 
 export default function Page() {
+  const [opened, { close, open }] = useDisclosure(false);
   const schema = z.object({
     name: z
       .string({
@@ -239,7 +242,14 @@ export default function Page() {
 
   return (
     <Flex direction='column' flex={1}>
-      <Flex bg='color.3' mb='20px' direction='column' pt='20px' flex={1}>
+      <Flex
+        bg='color.3'
+        mih='calc(100vh - 90px)'
+        mb='20px'
+        direction='column'
+        pt='20px'
+        flex={1}
+      >
         <Flex justify='end' w='100%' px={40} mb={10}>
           <Button onClick={() => setIsDrawerOpen(true)}>
             Add New Location
@@ -275,7 +285,14 @@ export default function Page() {
             </Table.Thead>
             <Table.Tbody>
               {(data as any)?.data?.map((location: any) => (
-                <Table.Tr key={location?.id} h='72px'>
+                <Table.Tr
+                  key={location?.id}
+                  h='72px'
+                  onClick={() => open()}
+                  style={{
+                    cursor: 'pointer',
+                  }}
+                >
                   <Table.Td>
                     <Checkbox aria-label='Select row' />
                   </Table.Td>
@@ -298,7 +315,8 @@ export default function Page() {
                     <Text
                       fz={14}
                       fw={400}
-                      c={location?.isAvailable ? 'color.1' : 'color.2'}>
+                      c={location?.isAvailable ? 'color.1' : 'color.2'}
+                    >
                       {location?.isAvailable ? 'Available' : 'Unavailable'}
                     </Text>
                   </Table.Td>
@@ -317,7 +335,8 @@ export default function Page() {
         position='right'
         opened={isDrawerOpen}
         onClose={() => setIsDrawerOpen(false)}
-        title='New Location'>
+        title='New Location'
+      >
         <TextInput
           required
           label='Name'
@@ -353,7 +372,8 @@ export default function Page() {
           // @ts-ignore
           <AddressAutofill
             accessToken={process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}
-            onRetrieve={onRetrieveAddress}>
+            onRetrieve={onRetrieveAddress}
+          >
             <TextInput
               required
               label='Address'
@@ -455,7 +475,8 @@ export default function Page() {
 
         <SimpleGrid
           cols={{ base: 1, sm: 4 }}
-          mt={previews.length > 0 ? 'xl' : 0}>
+          mt={previews.length > 0 ? 'xl' : 0}
+        >
           {previews}
         </SimpleGrid>
 
@@ -463,10 +484,12 @@ export default function Page() {
           fullWidth
           loading={mutation.isPending}
           mt={60}
-          onClick={() => form.onSubmit(handleSubmit)()}>
+          onClick={() => form.onSubmit(handleSubmit)()}
+        >
           Create
         </Button>
       </Drawer>
+      <LocationDetails opened={opened} close={close} />
     </Flex>
   );
 }

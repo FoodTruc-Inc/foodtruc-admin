@@ -3,13 +3,15 @@ import { Badge, Checkbox, Flex, Select, Table, Text } from '@mantine/core';
 import dayjs from 'dayjs';
 import { useOrders } from '@/hooks/data/useOrders';
 import { useState } from 'react';
+import { useDisclosure } from '@mantine/hooks';
+import { OrderDetails } from '@/components/Drawers';
 
 export default function Page() {
   const [status, setStatus] = useState<
     'all' | 'active' | 'completed' | 'cancelled'
   >('all');
   const { data, isLoading } = useOrders(status);
-
+  const [opened, { open, close }] = useDisclosure(false);
   return (
     <Flex direction='column' flex={1}>
       <Flex bg='color.3' mb='20px' direction='column' pt='20px' flex={1}>
@@ -59,7 +61,12 @@ export default function Page() {
             </Table.Thead>
             <Table.Tbody>
               {(data as any)?.data?.map((user: any) => (
-                <Table.Tr key={user?.id} h='72px'>
+                <Table.Tr
+                  key={user?.id}
+                  h='72px'
+                  onClick={() => open()}
+                  style={{ cursor: 'pointer' }}
+                >
                   <Table.Td>
                     <Checkbox aria-label='Select row' />
                   </Table.Td>
@@ -101,7 +108,8 @@ export default function Page() {
                       h={27}
                       py={2}
                       fz={8}
-                      fw={500}>
+                      fw={500}
+                    >
                       {user?.type}
                     </Badge>
                   </Table.Td>
@@ -111,6 +119,7 @@ export default function Page() {
           </Table>
         )}
       </Flex>
+      <OrderDetails opened={opened} close={close} />
     </Flex>
   );
 }
