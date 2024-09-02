@@ -37,6 +37,11 @@ const navLinks = [
     icon: Location,
   },
   {
+    name: 'Schedules',
+    route: ROUTES.schedules,
+    icon: Location,
+  },
+  {
     name: 'Orders',
     route: ROUTES.adminOrders,
     icon: Orders,
@@ -119,16 +124,14 @@ export const AdminDashboardShell: React.FC<{
       navbar={{
         width: isAuth ? 0 : 250,
         breakpoint: 'sm',
-      }}
-    >
+      }}>
       {!isAuth && (
         <AppShell.Navbar>
           <Flex
             direction='column'
             justify='space-between'
             h='100%'
-            bg='color.27'
-          >
+            bg='color.27'>
             <Flex direction='column'>
               <Flex
                 align='center'
@@ -137,8 +140,7 @@ export const AdminDashboardShell: React.FC<{
                   cursor: 'pointer',
                 }}
                 mt='30px'
-                mb='40px'
-              >
+                mb='40px'>
                 <Flex style={{ zIndex: 99 }}>
                   <Logo1 />
                 </Flex>
@@ -158,8 +160,7 @@ export const AdminDashboardShell: React.FC<{
                     key={link.route}
                     component={Link}
                     underline='never'
-                    href={link.route}
-                  >
+                    href={link.route}>
                     <Flex
                       align='center'
                       mb='15px'
@@ -170,8 +171,7 @@ export const AdminDashboardShell: React.FC<{
                         borderRight: isActivePath(link.route)
                           ? `3px solid ${theme.colors.color[27]}`
                           : 'none',
-                      }}
-                    >
+                      }}>
                       <link.icon
                         style={{
                           stroke: isActivePath(link.route)
@@ -187,8 +187,7 @@ export const AdminDashboardShell: React.FC<{
                         c={isActivePath(link.route) ? 'color.1' : 'color.2'}
                         fz='14px'
                         fw={isActivePath(link.route) ? '600' : '400'}
-                        ml='24px'
-                      >
+                        ml='24px'>
                         {link.name}
                       </Text>
                     </Flex>
@@ -205,8 +204,7 @@ export const AdminDashboardShell: React.FC<{
               style={{
                 cursor: 'pointer',
               }}
-              onClick={() => handleLogout()}
-            >
+              onClick={() => handleLogout()}>
               <Logout />
               <Text c='color.5' fz='14px' fw={400} ml='24px'>
                 Log out
@@ -227,8 +225,7 @@ export const AdminDashboardShell: React.FC<{
         style={{
           overflow: 'auto',
         }}
-        h='100vh'
-      >
+        h='100vh'>
         {children}
       </AppShell.Main>
     </AppShell>

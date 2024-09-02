@@ -8,6 +8,7 @@ export const ROUTES = {
   adminMenu: '/menu',
   adminEvents: '/events',
   locations: '/locations',
+  schedules: '/schedules',
 };
 
 export const QUERIES = {
@@ -20,4 +21,6 @@ export const QUERIES = {
   RESTAURANT: '/restaurants/:id',
   ORDERS: '/orders/admin',
   EVENTS: '/events/admin',
+  SCHEDULES: '/locations/approvals',
+  LOCATION_APPROVE: '/locations/:id/approve',
 };

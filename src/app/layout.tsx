@@ -13,6 +13,7 @@ import { MantineProvider } from '@mantine/core';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { theme } from '@/theme';
 import { Notifications } from '@mantine/notifications';
+import { ModalsProvider } from '@mantine/modals';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -34,7 +35,9 @@ export default function RootLayout({
         <QueryClientProvider client={queryClient}>
           <MantineProvider theme={theme}>
             <Notifications />
-            <AdminDashboardShell>{children}</AdminDashboardShell>
+            <AdminDashboardShell>
+              <ModalsProvider>{children}</ModalsProvider>
+            </AdminDashboardShell>
           </MantineProvider>
         </QueryClientProvider>
       </body>
